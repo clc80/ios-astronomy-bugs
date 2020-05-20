@@ -15,8 +15,11 @@ class MarsRoverClient {
                         completion: @escaping (MarsRover?, Error?) -> Void) {
         
         let url = self.url(forInfoForRover: name)
-        fetch(from: url, using: session) { (dictionary: [String : MarsRover]?, error: Error?) in
-            guard let rover = dictionary?["photoManifest"] else {
+        fetch(from: url, using: session) { (dictionaryOptional: [String : MarsRover]?, error: Error?) in
+            guard
+                let jsonDictionary = dictionaryOptional,
+                let rover = jsonDictionary["photo_manifest"]
+                else {
                 completion(nil, error)
                 return
             }

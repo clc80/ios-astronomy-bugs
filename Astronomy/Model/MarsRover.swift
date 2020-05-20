@@ -33,7 +33,7 @@ struct MarsRover: Codable {
         case status
         case maxSol
         case maxDate
-        case numberOfPhotos
+        case numberOfPhotos = "totalPhotos" // Different key name to be more in line with Swift
         case solDescriptions = "photos"
     }
     
