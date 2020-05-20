@@ -18,14 +18,58 @@ class PhotoDetailViewController: UIViewController {
     
     @IBAction func save(_ sender: Any) {
         guard let image = imageView.image else { return }
-        PHPhotoLibrary.shared().performChanges({
-            PHAssetChangeRequest.creationRequestForAsset(from: image)
-        }, completionHandler: { (success, error) in
-            if let error = error {
-                NSLog("Error saving photo: \(error)")
-                return
+        
+        // Do we have permission to access the photo library?
+        // We don't know?
+        let photosPermissionStatus = PHPhotoLibrary.authorizationStatus()
+        
+        switch photosPermissionStatus {
+        case .authorized:
+            PHPhotoLibrary.shared().performChanges({
+                PHAssetChangeRequest.creationRequestForAsset(from: image)
+            }, completionHandler: { (success, error) in
+                if let error = error {
+                    NSLog("Error saving photo: \(error)")
+                    return
+                }
+            })
+            
+        case .denied:
+            break
+            
+        case .notDetermined:
+            PHPhotoLibrary.requestAuthorization { (status) in
+                switch status {
+                    
+                    // We do. They just gave us permission.
+                case .authorized:
+                    PHPhotoLibrary.shared().performChanges({
+                        PHAssetChangeRequest.creationRequestForAsset(from: image)
+                    }, completionHandler: { (success, error) in
+                        if let error = error {
+                            NSLog("Error saving photo: \(error)")
+                            return
+                        }
+                    })
+                    
+                    // We don't They just rejected the request
+                case .denied:
+                    break
+                    
+                    // This shoul not happen
+                case .notDetermined:
+                    break
+                    
+                    // They have parental controls or something
+                case .restricted:
+                    break
+                }
             }
-        })
+            
+        case .restricted:
+            break
+            
+        }
     }
     
     // MARK: - Private

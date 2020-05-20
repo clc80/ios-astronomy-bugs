@@ -66,8 +66,18 @@ class PhotosCollectionViewController: UIViewController, UICollectionViewDataSour
     }
     
     func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        // Get a photo reference.
+        // This line makes sure that it's not going over the items in the array
+        guard indexPath.item < photoReferences.count else { return }
+        
+        // We know that we will be accessing a known index.
         let photoRef = photoReferences[indexPath.item]
-        operations[photoRef.id]?.cancel()
+        
+        // Do we still have that operation in our operations array?
+        guard let operationForPhotoRefID = operations[photoRef.id] else { return }
+        
+        // Cancelling an operation
+        operationForPhotoRefID.cancel()
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
